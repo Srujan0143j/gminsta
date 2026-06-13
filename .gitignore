@@ -27,3 +27,5 @@ server/uploads/temp/*
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
