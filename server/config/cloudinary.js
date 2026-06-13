@@ -1,6 +1,8 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
+import { fileURLToPath } from 'url';
 
 const isCloudinaryConfigured = () => {
   return (
@@ -55,9 +57,18 @@ export const uploadMedia = async (file, folder = 'gminsta') => {
 
   // Local Storage Fallback:
   // Move file from temp upload path to public uploads path
-  const uploadsDir = path.join(process.cwd(), 'uploads');
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const uploadsDir = process.env.VERCEL
+    ? path.join(os.tmpdir(), 'gminsta-uploads')
+    : path.join(__dirname, '..', 'uploads');
+
   if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+    try {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch (err) {
+      console.error('Error creating uploads directory:', err.message);
+    }
   }
 
   const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
@@ -93,7 +104,13 @@ export const deleteMedia = async (publicId, isCloud = false) => {
     }
   } else {
     // Delete local file
-    const filePath = path.join(process.cwd(), 'uploads', publicId);
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const uploadsDir = process.env.VERCEL
+      ? path.join(os.tmpdir(), 'gminsta-uploads')
+      : path.join(__dirname, '..', 'uploads');
+
+    const filePath = path.join(uploadsDir, publicId);
     try {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
