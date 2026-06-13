@@ -173,9 +173,17 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Ensure static public uploads are served
-const uploadsPath = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath, { recursive: true });
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsPath = path.join(__dirname, 'uploads');
+
+if (!fs.existsSync(uploadsPath) && !process.env.VERCEL) {
+  try {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+  } catch (err) {
+    console.error('Error creating uploads folder:', err.message);
+  }
 }
 app.use('/uploads', express.static(uploadsPath));
 
@@ -184,22 +192,26 @@ const base64Avatar = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUtEQVR42m
 const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="100%" height="100%" fill="#EAEAEA"/><circle cx="12" cy="8" r="4" fill="#A0A0A0"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="#A0A0A0"/></svg>`;
 const groupSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="100%" height="100%" fill="#EAEAEA"/><circle cx="9" cy="9" r="3" fill="#A0A0A0"/><circle cx="15" cy="9" r="3" fill="#A0A0A0"/><path d="M2 20c0-3.3 2.7-6 6-6h8c3.3 0 6 2.7 6 6" fill="#A0A0A0"/></svg>`;
 
-const avatarPath = path.join(uploadsPath, 'default-avatar.png');
-if (!fs.existsSync(avatarPath) || fs.statSync(avatarPath).size === 0) {
-  fs.writeFileSync(avatarPath, Buffer.from(base64Avatar, 'base64'));
-}
-const avatarSvgPath = path.join(uploadsPath, 'default-avatar.svg');
-if (!fs.existsSync(avatarSvgPath) || fs.statSync(avatarSvgPath).size === 0) {
-  fs.writeFileSync(avatarSvgPath, defaultSvg);
-}
+try {
+  const avatarPath = path.join(uploadsPath, 'default-avatar.png');
+  if (!fs.existsSync(avatarPath) || fs.statSync(avatarPath).size === 0) {
+    fs.writeFileSync(avatarPath, Buffer.from(base64Avatar, 'base64'));
+  }
+  const avatarSvgPath = path.join(uploadsPath, 'default-avatar.svg');
+  if (!fs.existsSync(avatarSvgPath) || fs.statSync(avatarSvgPath).size === 0) {
+    fs.writeFileSync(avatarSvgPath, defaultSvg);
+  }
 
-const groupAvatarPath = path.join(uploadsPath, 'group-avatar.png');
-if (!fs.existsSync(groupAvatarPath) || fs.statSync(groupAvatarPath).size === 0) {
-  fs.writeFileSync(groupAvatarPath, Buffer.from(base64Avatar, 'base64'));
-}
-const groupAvatarSvgPath = path.join(uploadsPath, 'group-avatar.svg');
-if (!fs.existsSync(groupAvatarSvgPath) || fs.statSync(groupAvatarSvgPath).size === 0) {
-  fs.writeFileSync(groupAvatarSvgPath, groupSvg);
+  const groupAvatarPath = path.join(uploadsPath, 'group-avatar.png');
+  if (!fs.existsSync(groupAvatarPath) || fs.statSync(groupAvatarPath).size === 0) {
+    fs.writeFileSync(groupAvatarPath, Buffer.from(base64Avatar, 'base64'));
+  }
+  const groupAvatarSvgPath = path.join(uploadsPath, 'group-avatar.svg');
+  if (!fs.existsSync(groupAvatarSvgPath) || fs.statSync(groupAvatarSvgPath).size === 0) {
+    fs.writeFileSync(groupAvatarSvgPath, groupSvg);
+  }
+} catch (err) {
+  console.warn('Could not write default avatars to disk (read-only filesystem):', err.message);
 }
 
 // General API request limits

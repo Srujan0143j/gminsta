@@ -1,11 +1,23 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
+import { fileURLToPath } from 'url';
 
-// Ensure temp directory exists
-const tempDir = path.join(process.cwd(), 'uploads', 'temp');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure temp directory exists (use system /tmp on Vercel, local server/uploads/temp elsewhere)
+const tempDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'gminsta-uploads-temp')
+  : path.join(__dirname, '..', 'uploads', 'temp');
+
 if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir, { recursive: true });
+  try {
+    fs.mkdirSync(tempDir, { recursive: true });
+  } catch (err) {
+    console.error('Error creating temp directory:', err.message);
+  }
 }
 
 // Multer storage configuration
