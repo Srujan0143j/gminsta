@@ -49,7 +49,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
-      const socketUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+      const socketUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
 
       const newSocket = io(socketUrl, {
         auth: { token },

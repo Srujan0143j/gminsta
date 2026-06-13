@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -45,7 +45,7 @@ export const getMediaUrl = (url) => {
   if (url.startsWith('http') || url.startsWith('data:')) return url;
   
   // Prepend backend port in dev, current host in prod
-  const backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+  const backendUrl = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
   return `${backendUrl}${url}`;
 };
 
