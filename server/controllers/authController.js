@@ -166,7 +166,7 @@ export const forgotPassword = async (req, res, next) => {
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl} \n\n If you did not request this, please ignore this email.`;
 
     try {
-      await sendEmail({
+      const emailResult = await sendEmail({
         email: user.email,
         subject: 'GMinsta Password Reset Request',
         message,
@@ -180,6 +180,14 @@ export const forgotPassword = async (req, res, next) => {
           <p>This link is valid for 10 minutes only.</p>
         `,
       });
+
+      if (emailResult && emailResult.simulated) {
+        return res.status(200).json({
+          success: true,
+          data: 'Email simulated successfully',
+          resetUrl
+        });
+      }
 
       res.status(200).json({ success: true, data: 'Email sent successfully' });
     } catch (err) {

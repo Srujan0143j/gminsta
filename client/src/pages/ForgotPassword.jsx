@@ -9,18 +9,27 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [resetUrl, setResetUrl] = useState('');
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     setMessage('');
     setError('');
+    setResetUrl('');
 
     try {
       const res = await api.post('/auth/forgotpassword', { email: data.email });
       if (res.data.success) {
-        setMessage(
-          'A password reset link has been dispatched to your email. (Note: Since we are in development mode, please also check your Node server console log for the reset link.)'
-        );
+        if (res.data.resetUrl) {
+          setMessage(
+            'A password reset request was processed. Since we are running in simulation mode, you can reset your password immediately using the link below:'
+          );
+          setResetUrl(res.data.resetUrl);
+        } else {
+          setMessage(
+            'A password reset link has been dispatched to your email.'
+          );
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to request reset. Verify your email.');
@@ -53,6 +62,18 @@ const ForgotPassword = () => {
         {message ? (
           <div className="bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 text-xs p-4 rounded-xl border border-green-100 dark:border-green-900/30 space-y-3">
             <p className="font-medium text-center">{message}</p>
+            {resetUrl && (
+              <div className="text-center pt-2 pb-1">
+                <a
+                  href={resetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 bg-instagram-blue text-white rounded-xl inline-block text-xs font-semibold hover:bg-instagram-darkBlue transition shadow-sm"
+                >
+                  Reset Password Now
+                </a>
+              </div>
+            )}
             <div className="text-center pt-2">
               <Link to="/login" className="text-xs font-bold text-instagram-blue hover:text-instagram-darkBlue">
                 Back to Login
