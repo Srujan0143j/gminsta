@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import os from 'os';
 
 // Security utilities
 import User from './models/User.js';
@@ -186,6 +187,12 @@ if (!fs.existsSync(uploadsPath) && !process.env.VERCEL) {
   }
 }
 app.use('/uploads', express.static(uploadsPath));
+
+// In serverless mode (Vercel), also serve files uploaded to /tmp
+if (process.env.VERCEL) {
+  const tempUploadsPath = path.join(os.tmpdir(), 'gminsta-uploads');
+  app.use('/uploads', express.static(tempUploadsPath));
+}
 
 // Default avatars setup
 const base64Avatar = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUtEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
