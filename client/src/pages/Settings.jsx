@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { Loader2, User, Key, Shield, CheckCircle } from 'lucide-react';
+import { Loader2, User, Key, Shield, CheckCircle, LogOut } from 'lucide-react';
 import api from '../services/api';
 
 const Settings = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   
   // Forms setup
   const { register: profileRegister, handleSubmit: handleProfileSubmit } = useForm({
@@ -127,6 +127,16 @@ const Settings = () => {
         >
           <Key size={14} />
           <span>Change Password</span>
+        </button>
+
+        <hr className="border-premium-lightBorder dark:border-premium-darkBorder my-2" />
+
+        <button
+          onClick={logout}
+          className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider text-instagram-red hover:bg-red-50 dark:hover:bg-red-950/20 transition duration-300"
+        >
+          <LogOut size={14} />
+          <span>Logout</span>
         </button>
       </div>
 

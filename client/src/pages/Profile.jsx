@@ -12,6 +12,7 @@ import {
   Play,
   Loader2,
   Trash2,
+  LogOut,
 } from 'lucide-react';
 import api from '../services/api';
 import Modal from '../components/Modal';
@@ -19,7 +20,7 @@ import PostCard from '../components/PostCard';
 
 const Profile = () => {
   const { username } = useParams();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
@@ -192,6 +193,13 @@ const Profile = () => {
                     className="p-2 border border-premium-lightBorder dark:border-premium-darkBorder rounded-xl hover:bg-neutral-50 dark:hover:bg-premium-darkCard text-neutral-600 dark:text-neutral-300 transition shadow-sm"
                   >
                     <Settings size={14} />
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="p-2 border border-red-200 dark:border-red-950/20 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/10 text-instagram-red transition shadow-sm md:hidden"
+                    title="Logout"
+                  >
+                    <LogOut size={14} />
                   </button>
                 </>
               ) : (
