@@ -225,7 +225,11 @@ app.get('/', (req, res) => {
 // Global Error Handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`GMinsta Server running in development mode on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`GMinsta Server running in development mode on port ${PORT}`);
+  });
+}
+
+export default app;
