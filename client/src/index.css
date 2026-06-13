@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply select-none;
+  }
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(19, 21, 32, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Custom scrollbar hides but allows scrolling (e.g. stories or reels lists) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Premium Instagram gradient borders for stories */
+.story-gradient {
+  background: linear-gradient(45deg, #feda75 0%, #d62976 50%, #962fbf 100%);
+}
+
+/* Double-tap heart animation overlay */
+.double-tap-heart {
+  animation: heartPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes heartPop {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1.2) rotate(15deg);
+    opacity: 0.9;
+  }
+  45% {
+    transform: translate(-50%, -50%) scale(1) rotate(-5deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(0.95) rotate(0deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+/* Voice Message Pulse Waveform Animation */
+.pulse-waveform {
+  animation: wavePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes wavePulse {
+  0%, 100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}

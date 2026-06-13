@@ -1,0 +1,29 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+client/dist/
+dist/
+
+# Static Uploads (Server generates placeholders dynamically on boot)
+server/uploads/*
+!server/uploads/.gitkeep
+server/uploads/temp/*
+
+# OS/Editor configurations
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
