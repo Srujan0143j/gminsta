@@ -16,6 +16,8 @@ dist/
 # Static Uploads (Server generates placeholders dynamically on boot)
 server/uploads/*
 !server/uploads/.gitkeep
+!server/uploads/default-avatar.*
+!server/uploads/group-avatar.*
 server/uploads/temp/*
 
 # OS/Editor configurations
