@@ -314,7 +314,7 @@ export const toggleLikePost = async (req, res, next) => {
     if (alreadyLiked) {
       // Unlike
       await alreadyLiked.deleteOne();
-      post.likesCount = Math.max(0, post.likesCount - 1);
+      post.likesCount = Math.max(0, (post.likesCount || 0) - 1);
       await post.save();
 
       // Clean up notification
@@ -329,7 +329,7 @@ export const toggleLikePost = async (req, res, next) => {
     } else {
       // Like
       await Like.create({ user: req.user.id, post: post._id });
-      post.likesCount += 1;
+      post.likesCount = (post.likesCount || 0) + 1;
       await post.save();
 
       // Create notification (if liking someone else's post)

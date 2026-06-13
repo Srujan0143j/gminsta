@@ -89,7 +89,7 @@ export const toggleLikeReel = async (req, res, next) => {
     if (alreadyLiked) {
       // Unlike
       await alreadyLiked.deleteOne();
-      reel.likesCount = Math.max(0, reel.likesCount - 1);
+      reel.likesCount = Math.max(0, (reel.likesCount || 0) - 1);
       await reel.save();
 
       // Clean up notification
@@ -104,7 +104,7 @@ export const toggleLikeReel = async (req, res, next) => {
     } else {
       // Like
       await Like.create({ user: req.user.id, reel: reel._id });
-      reel.likesCount += 1;
+      reel.likesCount = (reel.likesCount || 0) + 1;
       await reel.save();
 
       // Notify owner

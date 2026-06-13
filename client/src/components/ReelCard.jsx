@@ -11,7 +11,7 @@ const ReelCard = ({ reel: initialReel, isMuted, toggleMute }) => {
   
   const [reel, setReel] = useState(initialReel);
   const [isLiked, setIsLiked] = useState(reel.isLiked);
-  const [likesCount, setLikesCount] = useState(reel.likesCount);
+  const [likesCount, setLikesCount] = useState(reel.likesCount || 0);
   const [isSaved, setIsSaved] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   
@@ -103,7 +103,7 @@ const ReelCard = ({ reel: initialReel, isMuted, toggleMute }) => {
           >
             <Heart size={20} className={isLiked ? 'fill-instagram-red text-instagram-red' : ''} />
           </button>
-          <span className="text-[10px] font-bold mt-1 shadow-sm">{likesCount.toLocaleString()}</span>
+          <span className="text-[10px] font-bold mt-1 shadow-sm">{(likesCount || 0).toLocaleString()}</span>
         </div>
 
         {/* Comment */}
@@ -114,7 +114,7 @@ const ReelCard = ({ reel: initialReel, isMuted, toggleMute }) => {
           >
             <MessageCircle size={20} />
           </button>
-          <span className="text-[10px] font-bold mt-1 shadow-sm">{reel.commentsCount.toLocaleString()}</span>
+          <span className="text-[10px] font-bold mt-1 shadow-sm">{(reel.commentsCount || 0).toLocaleString()}</span>
         </div>
 
         {/* Save */}

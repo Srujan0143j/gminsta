@@ -171,11 +171,11 @@ const Explore = () => {
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-6 text-white font-bold text-sm transition-opacity duration-300">
                   <div className="flex items-center space-x-1.5">
                     <span className="fill-white">❤️</span>
-                    <span>{post.likesCount.toLocaleString()}</span>
+                    <span>{(post.likesCount || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <span>💬</span>
-                    <span>{post.commentsCount.toLocaleString()}</span>
+                    <span>{(post.commentsCount || 0).toLocaleString()}</span>
                   </div>
                 </div>
               </div>

@@ -61,7 +61,7 @@ export const addComment = async (req, res, next) => {
     });
 
     // Increment comments count on post
-    post.commentsCount += 1;
+    post.commentsCount = (post.commentsCount || 0) + 1;
     await post.save();
 
     // Notify post owner (if not commenting on own post)
@@ -171,7 +171,7 @@ export const deleteComment = async (req, res, next) => {
 
     // Decrement commentsCount (comment + replies)
     const deletedCount = 1 + replyIds.length;
-    post.commentsCount = Math.max(0, post.commentsCount - deletedCount);
+    post.commentsCount = Math.max(0, (post.commentsCount || 0) - deletedCount);
     await post.save();
 
     res.status(200).json({
@@ -232,14 +232,14 @@ export const toggleLikeComment = async (req, res, next) => {
     if (alreadyLiked) {
       // Unlike
       await alreadyLiked.deleteOne();
-      comment.likesCount = Math.max(0, comment.likesCount - 1);
+      comment.likesCount = Math.max(0, (comment.likesCount || 0) - 1);
       await comment.save();
 
       return res.status(200).json({ success: true, isLiked: false, likesCount: comment.likesCount });
     } else {
       // Like
       await Like.create({ user: req.user.id, comment: comment._id });
-      comment.likesCount += 1;
+      comment.likesCount = (comment.likesCount || 0) + 1;
       await comment.save();
 
       // Notify comment owner

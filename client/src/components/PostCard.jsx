@@ -328,7 +328,7 @@ const PostCard = ({ post: initialPost, onDelete }) => {
       {/* Details (likes count, captions, hash links) */}
       <div className="px-4 pb-2 space-y-1 text-xs md:text-sm">
         <span onClick={fetchLikesList} className="font-bold cursor-pointer text-neutral-800 dark:text-neutral-200 hover:underline">
-          {post.likesCount.toLocaleString()} likes
+          {(post.likesCount || 0).toLocaleString()} likes
         </span>
 
         {post.caption && (
@@ -353,12 +353,12 @@ const PostCard = ({ post: initialPost, onDelete }) => {
           </p>
         )}
 
-        {post.commentsCount > 0 && (
+        {(post.commentsCount || 0) > 0 && (
           <button
             onClick={() => setIsCommentsOpen(true)}
             className="text-neutral-400 font-medium cursor-pointer block hover:underline text-[11px]"
           >
-            View all {post.commentsCount} comments
+            View all {post.commentsCount || 0} comments
           </button>
         )}
 

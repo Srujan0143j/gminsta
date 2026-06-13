@@ -339,11 +339,11 @@ const Profile = () => {
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-6 text-white font-bold text-xs md:text-sm transition-opacity duration-300">
                   <div className="flex items-center space-x-1.5">
                     <span>❤️</span>
-                    <span>{post.likesCount}</span>
+                    <span>{post.likesCount || 0}</span>
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <span>💬</span>
-                    <span>{post.commentsCount}</span>
+                    <span>{post.commentsCount || 0}</span>
                   </div>
                 </div>
               </div>

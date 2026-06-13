@@ -198,7 +198,7 @@ export const deleteContentAdmin = async (req, res, next) => {
       if (comment) {
         const post = await Post.findById(comment.post);
         if (post) {
-          post.commentsCount = Math.max(0, post.commentsCount - 1);
+          post.commentsCount = Math.max(0, (post.commentsCount || 0) - 1);
           await post.save();
         }
         await comment.deleteOne();
