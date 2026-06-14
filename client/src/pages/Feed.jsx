@@ -201,7 +201,7 @@ const Feed = () => {
 
         {/* Footer */}
         <div className="text-[10px] text-neutral-400 space-y-2 pt-2 border-t border-neutral-50 dark:border-premium-darkBorder">
-          <p>© 2026 GMinsta from Google DeepMind Advanced Agentic Coding.</p>
+          <p>© 2026 GMinsta</p>
         </div>
       </div>
     </div>
