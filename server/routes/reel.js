@@ -16,6 +16,7 @@ router.post('/', protect, upload.single('video'), createReel);
 router.get('/', protect, getReels);
 router.get('/debug', async (req, res) => {
   try {
+    const Reel = (await import('../models/Reel.js')).default;
     const count = await Reel.countDocuments({});
     const reels = await Reel.find({}).populate('user', 'username');
     res.json({ success: true, count, reels });
