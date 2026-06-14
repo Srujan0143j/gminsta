@@ -88,7 +88,12 @@ export const uploadMedia = async (file, folder = 'gminsta') => {
   const destinationPath = path.join(uploadsDir, filename);
 
   try {
-    fs.renameSync(file.path, destinationPath);
+    fs.copyFileSync(file.path, destinationPath);
+    try {
+      fs.unlinkSync(file.path);
+    } catch (unlinkErr) {
+      console.warn('Could not remove temp file after copy:', unlinkErr);
+    }
     const serverUrl = `/uploads/${filename}`;
     return {
       url: serverUrl,

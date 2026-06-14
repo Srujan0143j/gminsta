@@ -26,12 +26,12 @@ const CreatePostFlow = ({ onSuccess }) => {
     const newFiles = [];
     const newPreviews = [];
     const isProduction = window.location.hostname !== 'localhost';
-    const maxSize = isProduction ? 4.5 * 1024 * 1024 : 50 * 1024 * 1024;
+    const maxSize = isProduction ? 3.3 * 1024 * 1024 : 50 * 1024 * 1024;
 
     files.forEach((file) => {
       // Validate file size
       if (file.size > maxSize) {
-        setError(`File ${file.name} exceeds the ${isProduction ? '4.5MB' : '50MB'} upload limit.`);
+        setError(`File ${file.name} exceeds the ${isProduction ? '3.3MB' : '50MB'} upload limit.`);
         return;
       }
 
@@ -146,7 +146,7 @@ const CreatePostFlow = ({ onSuccess }) => {
             Drag and drop media files
           </p>
           <p className="text-xs text-neutral-400 mb-4">
-            PNG, JPEG, GIF, MP4 (Max {window.location.hostname !== 'localhost' ? '4.5MB' : '50MB'} per file)
+            PNG, JPEG, GIF, MP4 (Max {window.location.hostname !== 'localhost' ? '3.3MB' : '50MB'} per file)
           </p>
           <label className="px-4 py-2 bg-instagram-blue text-white rounded-xl text-xs font-semibold cursor-pointer hover:bg-instagram-darkBlue transition shadow-sm">
             Select files from device
