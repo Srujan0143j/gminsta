@@ -70,6 +70,22 @@ export const createPost = async (req, res, next) => {
       isArchived: isArchived === 'true' || isArchived === true,
     });
 
+    // If the post contains a video, also create a Reel document so it shows in the Reels section
+    const videoMedia = mediaItems.find((item) => item.type === 'video');
+    if (videoMedia && isDraft !== 'true' && isDraft !== true && isArchived !== 'true' && isArchived !== true) {
+      try {
+        const Reel = (await import('../models/Reel.js')).default;
+        await Reel.create({
+          user: req.user.id,
+          videoUrl: videoMedia.url,
+          public_id: videoMedia.public_id,
+          caption: caption || '',
+        });
+      } catch (reelErr) {
+        console.error('Error auto-creating Reel for video post:', reelErr.message);
+      }
+    }
+
     const populatedPost = await Post.findById(post._id).populate('user', 'username profilePic isVerified');
 
     res.status(201).json({
