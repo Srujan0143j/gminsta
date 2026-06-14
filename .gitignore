@@ -31,3 +31,4 @@ server/uploads/temp/*
 *.sw?
 
 .vercel
+.env*
