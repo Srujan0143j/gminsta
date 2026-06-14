@@ -61,6 +61,7 @@ connectDB().then(async () => {
 });
 
 const app = express();
+app.set('trust proxy', true);
 const server = http.createServer(app);
 
 // Socket.io integration
