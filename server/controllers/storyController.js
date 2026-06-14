@@ -14,7 +14,9 @@ export const createStory = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Please upload an image or video for your story' });
     }
 
-    const isVideo = req.file.mimetype.startsWith('video');
+    const name = (req.file.originalname || '').toLowerCase();
+    const mime = (req.file.mimetype || '').toLowerCase();
+    const isVideo = mime.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || name.endsWith('.mkv') || name.endsWith('.avi') || name.endsWith('.3gp') || name.endsWith('.quicktime');
     const uploadResult = await uploadMedia(req.file, 'gminsta/stories');
 
     if (!uploadResult) {

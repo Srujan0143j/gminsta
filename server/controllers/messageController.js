@@ -17,8 +17,10 @@ export const sendMessage = async (req, res, next) => {
     let public_id = '';
 
     if (req.file) {
-      const isVoice = req.file.mimetype.startsWith('audio');
-      const isVideo = req.file.mimetype.startsWith('video');
+      const name = (req.file.originalname || '').toLowerCase();
+      const mime = (req.file.mimetype || '').toLowerCase();
+      const isVoice = mime.startsWith('audio/') || name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.ogg') || name.endsWith('.m4a');
+      const isVideo = mime.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || name.endsWith('.mkv') || name.endsWith('.avi') || name.endsWith('.3gp') || name.endsWith('.quicktime');
       const uploadResult = await uploadMedia(
         req.file,
         isVoice ? 'gminsta/voice' : isVideo ? 'gminsta/chat_videos' : 'gminsta/chat_images'

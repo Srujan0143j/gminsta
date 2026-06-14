@@ -32,8 +32,10 @@ if (isCloudinaryConfigured()) {
 export const uploadMedia = async (file, folder = 'gminsta') => {
   if (!file) return null;
 
-  const isVideo = file.mimetype && file.mimetype.startsWith('video');
-  const isAudio = file.mimetype && file.mimetype.startsWith('audio');
+  const name = (file.originalname || '').toLowerCase();
+  const mime = (file.mimetype || '').toLowerCase();
+  const isVideo = mime.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || name.endsWith('.mkv') || name.endsWith('.avi') || name.endsWith('.3gp') || name.endsWith('.quicktime');
+  const isAudio = mime.startsWith('audio/') || name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.ogg') || name.endsWith('.m4a');
 
   if (isCloudinaryConfigured()) {
     try {

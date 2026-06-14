@@ -32,7 +32,9 @@ export const createPost = async (req, res, next) => {
     }
 
     for (const file of files) {
-      const isVideo = file.mimetype.startsWith('video');
+      const name = (file.originalname || '').toLowerCase();
+      const mime = (file.mimetype || '').toLowerCase();
+      const isVideo = mime.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || name.endsWith('.mkv') || name.endsWith('.avi') || name.endsWith('.3gp') || name.endsWith('.quicktime');
       const uploadResult = await uploadMedia(file, isVideo ? 'gminsta/videos' : 'gminsta/posts');
       if (uploadResult) {
         mediaItems.push({
