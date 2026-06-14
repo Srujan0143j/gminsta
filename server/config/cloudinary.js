@@ -32,12 +32,23 @@ if (isCloudinaryConfigured()) {
 export const uploadMedia = async (file, folder = 'gminsta') => {
   if (!file) return null;
 
+  const isVideo = file.mimetype && file.mimetype.startsWith('video');
+  const isAudio = file.mimetype && file.mimetype.startsWith('audio');
+
   if (isCloudinaryConfigured()) {
     try {
-      const result = await cloudinary.uploader.upload(file.path, {
+      const options = {
         folder: folder,
-        resource_type: 'auto',
-      });
+        resource_type: (isVideo || isAudio) ? 'video' : 'auto',
+      };
+
+      let result;
+      if (isVideo || isAudio) {
+        result = await cloudinary.uploader.upload_large(file.path, options);
+      } else {
+        result = await cloudinary.uploader.upload(file.path, options);
+      }
+
       // Delete temporary local file
       try {
         fs.unlinkSync(file.path);

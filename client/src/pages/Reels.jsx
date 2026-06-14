@@ -37,6 +37,16 @@ const Reels = () => {
   const handleVideoSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const isProduction = window.location.hostname !== 'localhost';
+      const maxSize = isProduction ? 4.5 * 1024 * 1024 : 50 * 1024 * 1024; // 4.5MB on Vercel, 50MB locally
+      
+      if (file.size > maxSize) {
+        setUploadError(`Video file size exceeds the limit of ${isProduction ? '4.5MB' : '50MB'} for this environment.`);
+        setVideoFile(null);
+        setVideoPreview(null);
+        return;
+      }
+      
       setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
       setUploadError('');
@@ -145,7 +155,9 @@ const Reels = () => {
           ) : (
             <div className="border-2 border-dashed border-premium-lightBorder dark:border-premium-darkBorder rounded-xl p-8 text-center flex flex-col items-center justify-center hover:bg-neutral-50 dark:hover:bg-premium-darkCard/30 transition">
               <Film size={36} className="text-neutral-400 mb-3" />
-              <p className="text-xs text-neutral-400 mb-4">Select short video (MP4/MOV up to 50MB)</p>
+              <p className="text-xs text-neutral-400 mb-4">
+                Select short video (MP4/MOV up to {window.location.hostname !== 'localhost' ? '4.5MB' : '50MB'})
+              </p>
               <label className="px-4 py-2 bg-instagram-blue text-white rounded-xl text-xs font-semibold cursor-pointer hover:bg-instagram-darkBlue transition shadow-sm">
                 Choose Video
                 <input
