@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Film, Plus, Loader2 } from 'lucide-react';
 import api from '../services/api';
+import { uploadToCloudinary } from '../services/cloudinary';
 import ReelCard from '../components/ReelCard';
 import Modal from '../components/Modal';
 
@@ -37,11 +38,10 @@ const Reels = () => {
   const handleVideoSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const isProduction = window.location.hostname !== 'localhost';
-      const maxSize = isProduction ? 3.3 * 1024 * 1024 : 50 * 1024 * 1024; // 3.3MB on Vercel to account for 33% multipart overhead, 50MB locally
+      const maxSize = 50 * 1024 * 1024; // 50MB limit
       
       if (file.size > maxSize) {
-        setUploadError(`Video file size exceeds the limit of ${isProduction ? '3.3MB' : '50MB'} for this environment.`);
+        setUploadError('Video file size exceeds the 50MB upload limit.');
         setVideoFile(null);
         setVideoPreview(null);
         return;
@@ -60,16 +60,35 @@ const Reels = () => {
     setIsUploading(true);
     setUploadError('');
 
-    const formData = new FormData();
-    formData.append('video', videoFile);
-    formData.append('caption', caption);
-
     try {
-      const res = await api.post('/reels', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // 1. Attempt direct upload to Cloudinary from client side
+      let uploadResult = null;
+      try {
+        uploadResult = await uploadToCloudinary(videoFile, 'gminsta/reels');
+      } catch (cloudinaryErr) {
+        console.warn('Direct Cloudinary upload failed, falling back to server-side upload:', cloudinaryErr.message);
+      }
+
+      let res;
+      if (uploadResult) {
+        // Send small JSON payload
+        res = await api.post('/reels', {
+          videoUrl: uploadResult.url,
+          public_id: uploadResult.public_id,
+          caption: caption,
+        });
+      } else {
+        // Fallback: send standard multipart/form-data payload to backend
+        const formData = new FormData();
+        formData.append('video', videoFile);
+        formData.append('caption', caption);
+
+        res = await api.post('/reels', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
 
       if (res.data.success) {
         setIsCreateOpen(false);
@@ -156,7 +175,7 @@ const Reels = () => {
             <div className="border-2 border-dashed border-premium-lightBorder dark:border-premium-darkBorder rounded-xl p-8 text-center flex flex-col items-center justify-center hover:bg-neutral-50 dark:hover:bg-premium-darkCard/30 transition">
               <Film size={36} className="text-neutral-400 mb-3" />
               <p className="text-xs text-neutral-400 mb-4">
-                Select short video (MP4/MOV up to {window.location.hostname !== 'localhost' ? '3.3MB' : '50MB'})
+                Select short video (MP4/MOV up to 50MB)
               </p>
               <label className="px-4 py-2 bg-instagram-blue text-white rounded-xl text-xs font-semibold cursor-pointer hover:bg-instagram-darkBlue transition shadow-sm">
                 Choose Video

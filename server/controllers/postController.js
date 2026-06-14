@@ -20,28 +20,41 @@ const extractHashtags = (caption) => {
 // @access  Private
 export const createPost = async (req, res, next) => {
   try {
-    const { caption, location, isDraft, isArchived } = req.body;
+    const { caption, location, isDraft, isArchived, media } = req.body;
 
     let mediaItems = [];
 
-    // Check if files are uploaded (supports single file as req.file or multiple files as req.files)
-    const files = req.files || (req.file ? [req.file] : []);
-
-    if (files.length === 0 && !isDraft) {
-      return res.status(400).json({ success: false, error: 'Please upload at least one image or video' });
+    let parsedMedia = media;
+    if (typeof media === 'string') {
+      try {
+        parsedMedia = JSON.parse(media);
+      } catch (err) {
+        // Ignore parsing error
+      }
     }
 
-    for (const file of files) {
-      const name = (file.originalname || '').toLowerCase();
-      const mime = (file.mimetype || '').toLowerCase();
-      const isVideo = mime.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || name.endsWith('.mkv') || name.endsWith('.avi') || name.endsWith('.3gp') || name.endsWith('.quicktime');
-      const uploadResult = await uploadMedia(file, isVideo ? 'gminsta/videos' : 'gminsta/posts');
-      if (uploadResult) {
-        mediaItems.push({
-          url: uploadResult.url,
-          type: isVideo ? 'video' : 'image',
-          public_id: uploadResult.public_id,
-        });
+    if (parsedMedia && Array.isArray(parsedMedia) && parsedMedia.length > 0) {
+      mediaItems = parsedMedia;
+    } else {
+      // Check if files are uploaded (supports single file as req.file or multiple files as req.files)
+      const files = req.files || (req.file ? [req.file] : []);
+
+      if (files.length === 0 && !isDraft) {
+        return res.status(400).json({ success: false, error: 'Please upload at least one image or video' });
+      }
+
+      for (const file of files) {
+        const name = (file.originalname || '').toLowerCase();
+        const mime = (file.mimetype || '').toLowerCase();
+        const isVideo = mime.startsWith('video/') || name.endsWith('.mp4') || name.endsWith('.mov') || name.endsWith('.webm') || name.endsWith('.mkv') || name.endsWith('.avi') || name.endsWith('.3gp') || name.endsWith('.quicktime');
+        const uploadResult = await uploadMedia(file, isVideo ? 'gminsta/videos' : 'gminsta/posts');
+        if (uploadResult) {
+          mediaItems.push({
+            url: uploadResult.url,
+            type: isVideo ? 'video' : 'image',
+            public_id: uploadResult.public_id,
+          });
+        }
       }
     }
 

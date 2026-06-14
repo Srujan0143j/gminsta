@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Image, Video, MapPin, X, Loader2 } from 'lucide-react';
 import api from '../services/api';
+import { uploadToCloudinary } from '../services/cloudinary';
 
 const CreatePostFlow = ({ onSuccess }) => {
   const { register, handleSubmit, reset } = useForm();
@@ -25,13 +26,12 @@ const CreatePostFlow = ({ onSuccess }) => {
 
     const newFiles = [];
     const newPreviews = [];
-    const isProduction = window.location.hostname !== 'localhost';
-    const maxSize = isProduction ? 3.3 * 1024 * 1024 : 50 * 1024 * 1024;
+    const maxSize = 50 * 1024 * 1024; // 50MB limit
 
     files.forEach((file) => {
       // Validate file size
       if (file.size > maxSize) {
-        setError(`File ${file.name} exceeds the ${isProduction ? '3.3MB' : '50MB'} upload limit.`);
+        setError(`File ${file.name} exceeds the 50MB upload limit.`);
         return;
       }
 
@@ -63,22 +63,53 @@ const CreatePostFlow = ({ onSuccess }) => {
     setIsUploading(true);
     setError('');
 
-    const formData = new FormData();
-    formData.append('caption', data.caption || '');
-    formData.append('location', data.location || '');
-    formData.append('isDraft', data.isDraft || false);
-
-    // Append media files
-    mediaFiles.forEach((file) => {
-      formData.append('media', file);
-    });
-
     try {
-      const res = await api.post('/posts', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      let uploadedMedia = [];
+      let uploadFailed = false;
+
+      // 1. Attempt to upload all files to Cloudinary from client side
+      try {
+        for (const file of mediaFiles) {
+          const isVideo = file.type.startsWith('video');
+          const folder = isVideo ? 'gminsta/videos' : 'gminsta/posts';
+          const result = await uploadToCloudinary(file, folder);
+          uploadedMedia.push({
+            url: result.url,
+            public_id: result.public_id,
+            type: isVideo ? 'video' : 'image',
+          });
+        }
+      } catch (cloudinaryErr) {
+        console.warn('Direct Cloudinary upload failed, falling back to server-side upload:', cloudinaryErr.message);
+        uploadFailed = true;
+      }
+
+      let res;
+      if (!uploadFailed && uploadedMedia.length === mediaFiles.length) {
+        // Send JSON payload with media array
+        res = await api.post('/posts', {
+          caption: data.caption || '',
+          location: data.location || '',
+          isDraft: data.isDraft || false,
+          media: uploadedMedia,
+        });
+      } else {
+        // Fallback: send standard multipart/form-data payload to backend
+        const formData = new FormData();
+        formData.append('caption', data.caption || '');
+        formData.append('location', data.location || '');
+        formData.append('isDraft', data.isDraft || false);
+
+        mediaFiles.forEach((file) => {
+          formData.append('media', file);
+        });
+
+        res = await api.post('/posts', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
 
       if (res.data.success) {
         reset();
@@ -146,7 +177,7 @@ const CreatePostFlow = ({ onSuccess }) => {
             Drag and drop media files
           </p>
           <p className="text-xs text-neutral-400 mb-4">
-            PNG, JPEG, GIF, MP4 (Max {window.location.hostname !== 'localhost' ? '3.3MB' : '50MB'} per file)
+            PNG, JPEG, GIF, MP4 (Max 50MB per file)
           </p>
           <label className="px-4 py-2 bg-instagram-blue text-white rounded-xl text-xs font-semibold cursor-pointer hover:bg-instagram-darkBlue transition shadow-sm">
             Select files from device

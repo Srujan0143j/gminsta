@@ -32,6 +32,7 @@ import messageRoutes from './routes/message.js';
 import notificationRoutes from './routes/notification.js';
 import adminRoutes from './routes/admin.js';
 import reportRoutes from './routes/report.js';
+import uploadRoutes from './routes/upload.js';
 
 // Load env variables
 dotenv.config();
@@ -236,6 +237,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Base Route
 app.get('/', (req, res) => {

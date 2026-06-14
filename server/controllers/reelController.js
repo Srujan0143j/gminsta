@@ -9,19 +9,27 @@ import { uploadMedia, deleteMedia } from '../config/cloudinary.js';
 // @access  Private
 export const createReel = async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, error: 'Please upload a video for your reel' });
-    }
+    let videoUrl = req.body.videoUrl;
+    let public_id = req.body.public_id;
 
-    const uploadResult = await uploadMedia(req.file, 'gminsta/reels');
-    if (!uploadResult) {
-      return res.status(500).json({ success: false, error: 'Failed to upload reel video' });
+    if (!videoUrl) {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Please upload a video for your reel' });
+      }
+
+      const uploadResult = await uploadMedia(req.file, 'gminsta/reels');
+      if (!uploadResult) {
+        return res.status(500).json({ success: false, error: 'Failed to upload reel video' });
+      }
+
+      videoUrl = uploadResult.url;
+      public_id = uploadResult.public_id;
     }
 
     const reel = await Reel.create({
       user: req.user.id,
-      videoUrl: uploadResult.url,
-      public_id: uploadResult.public_id,
+      videoUrl,
+      public_id,
       caption: req.body.caption || '',
     });
 
