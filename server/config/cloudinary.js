@@ -46,7 +46,12 @@ export const uploadMedia = async (file, folder = 'gminsta') => {
 
       let result;
       if (isVideo || isAudio) {
-        result = await cloudinary.uploader.upload_large(file.path, options);
+        result = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_large(file.path, options, (error, uploadResult) => {
+            if (error) return reject(error);
+            resolve(uploadResult);
+          });
+        });
       } else {
         result = await cloudinary.uploader.upload(file.path, options);
       }
