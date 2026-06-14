@@ -13,6 +13,7 @@ import {
   Loader2,
   Trash2,
   LogOut,
+  Film,
 } from 'lucide-react';
 import api from '../services/api';
 import Modal from '../components/Modal';
@@ -25,9 +26,10 @@ const Profile = () => {
 
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [reels, setReels] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('posts'); // 'posts', 'saved'
+  const [activeTab, setActiveTab] = useState('posts'); // 'posts', 'reels', 'saved'
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   // Selected post view details
@@ -58,6 +60,16 @@ const Profile = () => {
           const postsRes = await api.get(`/posts/user/${username}`);
           if (postsRes.data.success) {
             setPosts(postsRes.data.posts);
+          }
+
+          // Fetch reels
+          try {
+            const reelsRes = await api.get(`/reels/user/${username}`);
+            if (reelsRes.data.success) {
+              setReels(reelsRes.data.reels);
+            }
+          } catch (err) {
+            console.error('Error fetching reels:', err);
           }
 
           // Fetch highlights
@@ -312,6 +324,18 @@ const Profile = () => {
               <span>Posts</span>
             </button>
 
+            <button
+              onClick={() => setActiveTab('reels')}
+              className={`flex items-center space-x-2 py-4 px-8 border-t-2 text-xs font-bold uppercase tracking-wider transition duration-300 ${
+                activeTab === 'reels'
+                  ? 'border-instagram-blue text-instagram-blue'
+                  : 'border-transparent text-neutral-400 hover:text-neutral-600'
+              }`}
+            >
+              <Film size={14} />
+              <span>Reels</span>
+            </button>
+
             {isSelf && (
               <button
                 onClick={() => setActiveTab('saved')}
@@ -329,7 +353,7 @@ const Profile = () => {
 
           {/* Grid visualizer */}
           <div className="grid grid-cols-3 gap-1 md:gap-4 px-2">
-            {(activeTab === 'posts' ? posts : savedPosts).map((post) => (
+            {activeTab === 'posts' && posts.map((post) => (
               <div
                 key={post._id}
                 onClick={() => handleOpenPost(post._id)}
@@ -357,9 +381,63 @@ const Profile = () => {
               </div>
             ))}
 
-            {(activeTab === 'posts' ? posts : savedPosts).length === 0 && (
+            {activeTab === 'reels' && reels.map((reel) => (
+              <div
+                key={reel._id}
+                onClick={() => navigate('/reels')}
+                className="relative aspect-square bg-neutral-900 rounded-lg overflow-hidden group cursor-pointer border border-premium-lightBorder dark:border-premium-darkBorder shadow-sm"
+              >
+                <div className="w-full h-full relative">
+                  <video src={reel.videoUrl} className="w-full h-full object-cover" muted />
+                  <Play size={16} className="absolute top-2 right-2 text-white fill-white opacity-75" />
+                </div>
+
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-6 text-white font-bold text-xs md:text-sm transition-opacity duration-300">
+                  <div className="flex items-center space-x-1.5">
+                    <span>❤️</span>
+                    <span>{reel.likesCount || 0}</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span>💬</span>
+                    <span>{reel.commentsCount || 0}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {activeTab === 'saved' && savedPosts.map((post) => (
+              <div
+                key={post._id}
+                onClick={() => handleOpenPost(post._id)}
+                className="relative aspect-square bg-neutral-900 rounded-lg overflow-hidden group cursor-pointer border border-premium-lightBorder dark:border-premium-darkBorder shadow-sm"
+              >
+                {post.media[0]?.type === 'video' ? (
+                  <div className="w-full h-full relative">
+                    <video src={post.media[0].url} className="w-full h-full object-cover" muted />
+                    <Play size={16} className="absolute top-2 right-2 text-white fill-white opacity-75" />
+                  </div>
+                ) : (
+                  <img src={post.media[0]?.url} alt="profile post" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                )}
+
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-6 text-white font-bold text-xs md:text-sm transition-opacity duration-300">
+                  <div className="flex items-center space-x-1.5">
+                    <span>❤️</span>
+                    <span>{post.likesCount || 0}</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span>💬</span>
+                    <span>{post.commentsCount || 0}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {((activeTab === 'posts' && posts.length === 0) ||
+              (activeTab === 'reels' && reels.length === 0) ||
+              (activeTab === 'saved' && savedPosts.length === 0)) && (
               <div className="col-span-3 text-center py-20 text-neutral-400 text-sm">
-                No posts to show.
+                No content to show.
               </div>
             )}
           </div>

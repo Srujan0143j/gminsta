@@ -1,4 +1,5 @@
 import Reel from '../models/Reel.js';
+import Post from '../models/Post.js';
 import Like from '../models/Like.js';
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
@@ -31,6 +32,19 @@ export const createReel = async (req, res, next) => {
       videoUrl,
       public_id,
       caption: req.body.caption || '',
+    });
+
+    // Also create a Post document for this reel so it shows up in main feeds (others feed) and profile grid
+    await Post.create({
+      user: req.user.id,
+      media: [{
+        url: videoUrl,
+        type: 'video',
+        public_id,
+      }],
+      caption: req.body.caption || '',
+      isDraft: false,
+      isArchived: false,
     });
 
     const populated = await Reel.findById(reel._id).populate('user', 'username profilePic isVerified');
@@ -176,6 +190,39 @@ export const deleteReel = async (req, res, next) => {
     await Like.deleteMany({ reel: reel._id });
 
     res.status(200).json({ success: true, message: 'Reel deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get reels by username
+// @route   GET /api/reels/user/:username
+// @access  Private
+export const getUserReels = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ username: req.params.username.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    const reels = await Reel.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .populate('user', 'username profilePic isVerified');
+
+    const reelsWithInteraction = await Promise.all(
+      reels.map(async (reel) => {
+        const isLiked = await Like.exists({ user: req.user.id, reel: reel._id });
+        return {
+          ...reel.toObject(),
+          isLiked: !!isLiked,
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      reels: reelsWithInteraction,
+    });
   } catch (error) {
     next(error);
   }
