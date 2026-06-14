@@ -40,7 +40,7 @@ const BottomNav = () => {
           <img
             src={user?.profilePic || '/uploads/default-avatar.png'}
             alt="profile"
-            className="w-6.5 h-6.5 rounded-full object-cover border border-premium-lightBorder dark:border-premium-darkBorder"
+            className="w-6 h-6 rounded-full object-cover border border-premium-lightBorder dark:border-premium-darkBorder"
           />
         </NavLink>
       </div>
