@@ -5,6 +5,7 @@ export const apiLimiter = rateLimit({
   max: 300, // Limit each IP to 300 requests per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  validate: { trustProxy: false },
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again after 15 minutes.',
@@ -16,6 +17,7 @@ export const authLimiter = rateLimit({
   max: 30, // Limit each IP to 30 requests per windowMs for auth endpoints
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   message: {
     success: false,
     error: 'Too many authentication attempts, please try again after 15 minutes.',
